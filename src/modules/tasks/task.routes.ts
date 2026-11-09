@@ -1,13 +1,13 @@
 import { Router } from "express";
-import { validateBody, validateQuery } from "../middlewares/validate";
-import { InMemoryTaskRepository } from "./tasks/task.repository";
-import { TaskService } from "./tasks/task.service";
-import { TaskController } from "./tasks/task.controller";
+import { validateBody, validateQuery } from "../../middlewares/validate";
+import { InMemoryTaskRepository } from "./task.repository";
+import { TaskService } from "./task.service";
+import { TaskController } from "./task.controller";
 import {
   createTaskSchema,
   updateTaskSchema,
   listTaskQuerySchema,
-} from "./tasks/task.schema";
+} from "./task.schema";
 
 // A factory, not a module-level singleton: every createApp() call gets its own
 // in-memory store, so tests (and multiple app instances) never share tasks.

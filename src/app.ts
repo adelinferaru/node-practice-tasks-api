@@ -1,7 +1,7 @@
 import express from "express";
 import { config } from "./config";
 import { errorHandler, notFound } from "./middlewares/errorHandler";
-import { createTaskRouter } from "./modules/task.routes";
+import { createTaskRouter } from "./modules/tasks/task.routes";
 
 export function createApp() {
   const app = express();
