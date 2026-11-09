@@ -1,0 +1,8 @@
+{
+  // Production build: compile src/ only, so dist/server.js stays where `npm start` expects it.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "./src"
+  },
+  "include": ["src"]
+}

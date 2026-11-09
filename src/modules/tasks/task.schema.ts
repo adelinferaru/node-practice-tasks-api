@@ -8,7 +8,11 @@ const taskFields = z.object({
   description: z.string().trim().max(2000).optional(),
   status: TaskStatus,
   priority: TaskPriority,
-  dueDate: z.coerce.date().optional(),
+  // Only ISO strings: "2026-12-01" or "2026-12-01T10:00:00Z". Rejects null, numbers, "tomorrow".
+  dueDate: z
+    .union([z.iso.date(), z.iso.datetime({ offset: true })])
+    .transform((s) => new Date(s))
+    .optional(),
 });
 
 export const createTaskSchema = taskFields.extend({

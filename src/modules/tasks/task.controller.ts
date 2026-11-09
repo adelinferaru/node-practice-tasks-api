@@ -8,7 +8,7 @@ export class TaskController {
   create = (req: Request, res: Response): void => {
     const task = this.service.create(req.body);
 
-    res.status(200).location(`/api/tasks/${task.id}`).json(task);
+    res.status(201).location(`/api/tasks/${task.id}`).json(task);
   };
 
   list = (req: Request, res: Response) => {

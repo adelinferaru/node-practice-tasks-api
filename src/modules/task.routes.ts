@@ -9,16 +9,22 @@ import {
   listTaskQuerySchema,
 } from "./tasks/task.schema";
 
-const controller = new TaskController(
-  new TaskService(new InMemoryTaskRepository()),
-);
+// A factory, not a module-level singleton: every createApp() call gets its own
+// in-memory store, so tests (and multiple app instances) never share tasks.
+export function createTaskRouter(): Router {
+  const controller = new TaskController(
+    new TaskService(new InMemoryTaskRepository()),
+  );
 
-export const taskRouter = Router();
+  const router = Router();
 
-taskRouter.get("/stats", controller.stats);
+  router.get("/stats", controller.stats);
 
-taskRouter.get("/", validateQuery(listTaskQuerySchema), controller.list);
-taskRouter.post("/:id", validateBody(createTaskSchema), controller.create);
-taskRouter.get("/:id", controller.getOne);
-taskRouter.patch("/:id", validateBody(updateTaskSchema), controller.update);
-taskRouter.delete("/:id", controller.remove);
+  router.get("/", validateQuery(listTaskQuerySchema), controller.list);
+  router.post("/", validateBody(createTaskSchema), controller.create);
+  router.get("/:id", controller.getOne);
+  router.patch("/:id", validateBody(updateTaskSchema), controller.update);
+  router.delete("/:id", controller.remove);
+
+  return router;
+}

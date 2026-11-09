@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { AppError, NotFoundError } from "../../lib/errors";
+import { ConflictError, NotFoundError } from "../../lib/errors";
 import type { TaskRepository } from "./task.repository";
 import type {
   CreateTaskInput,
@@ -70,8 +70,7 @@ export class TaskService {
   update(id: string, input: UpdateTaskInput): Task {
     const task = this.getById(id);
     if (input.status && !this.canTransition(task.status, input.status)) {
-      throw new AppError(
-        409,
+      throw new ConflictError(
         `Cannot change status from ${task.status} to ${input.status}`,
       );
     }
