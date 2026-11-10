@@ -3,6 +3,11 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import request from "supertest";
 import { createApp } from "../src/app";
+import {
+  taskListResponseSchema,
+  taskResponseSchema,
+  taskStatsResponseSchema,
+} from "../src/modules/tasks/task.dto";
 
 // This works precisely because app.ts builds the app without listen()ing —
 // the app/server split exists FOR this line.
@@ -115,5 +120,42 @@ describe("Tasks API", () => {
         .send({ title: "d", dueDate });
       expect(bad.status).toBe(400);
     }
+  });
+
+  // Contract tests: every success response must match its response DTO exactly.
+  // The DTO schemas are strict, so an extra (leaked) field fails the test.
+  it("returns responses that match the response DTOs", async () => {
+    const created = await request(app)
+      .post("/api/tasks")
+      .send({ title: "dto", dueDate: "2026-12-01" });
+    expect(() => taskResponseSchema.parse(created.body)).not.toThrow();
+
+    const one = await request(app).get(`/api/tasks/${created.body.id}`);
+    expect(() => taskResponseSchema.parse(one.body)).not.toThrow();
+
+    const patched = await request(app)
+      .patch(`/api/tasks/${created.body.id}`)
+      .send({ status: "in_progress" });
+    expect(() => taskResponseSchema.parse(patched.body)).not.toThrow();
+
+    const list = await request(app).get("/api/tasks");
+    expect(() => taskListResponseSchema.parse(list.body)).not.toThrow();
+
+    const stats = await request(app).get("/api/tasks/stats");
+    expect(() => taskStatsResponseSchema.parse(stats.body)).not.toThrow();
+  });
+
+  // API description: the OpenAPI JSON documents every endpoint, Swagger UI serves HTML.
+  it("serves the OpenAPI spec and Swagger UI", async () => {
+    const spec = await request(app).get("/openapi.json");
+    expect(spec.status).toBe(200);
+    expect(spec.body.openapi).toBe("3.1.0");
+    expect(Object.keys(spec.body.paths)).toEqual(
+      expect.arrayContaining(["/api/tasks", "/api/tasks/{id}", "/api/tasks/stats"]),
+    );
+
+    const docs = await request(app).get("/docs/");
+    expect(docs.status).toBe(200);
+    expect(docs.headers["content-type"]).toContain("text/html");
   });
 });

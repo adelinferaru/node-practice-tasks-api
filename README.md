@@ -74,11 +74,13 @@ Every error response, whatever the cause, has the same shape:
 ## What I practiced
 - Layered structure: routes → controller → service → repository
 - Request validation with **Zod** (body and query middlewares)
+- DTOs: Zod schemas for request input, plus response DTOs with a `toTaskResponse` mapper, so internal fields can't leak
+- API description: an **OpenAPI 3.1** spec generated from the Zod schemas, served with **Swagger UI**
 - Centralized error handling and a typed config loaded from `.env`
 - Testing with **Vitest** + **Supertest**: in-process HTTP tests, a fresh app per test
 
 ## Stack
-Node.js · Express 5 · TypeScript · Zod · Vitest · Supertest · tsx
+Node.js · Express 5 · TypeScript · Zod · OpenAPI 3.1 / Swagger UI · Vitest · Supertest · tsx
 
 ## Run it
 ```bash
@@ -95,3 +97,12 @@ npm run dev
 | `npm run typecheck` | Type-check without emitting |
 
 There's also a `GET /health` endpoint that reports server status and uptime.
+
+## API docs
+
+With the server running:
+
+- **http://localhost:3000/docs**: interactive Swagger UI, where you can try every endpoint in the browser
+- **http://localhost:3000/openapi.json**: the raw OpenAPI 3.1 spec, for Postman, Insomnia or client generators
+
+The spec is generated from the same Zod schemas that validate requests (`task.schema.ts`) and shape responses (`task.dto.ts`), so the docs always match what the API actually does.
